@@ -1,0 +1,123 @@
+enterprise:
+  name: "Aether Global Logistics"
+  domain: "aetherlogistics.com"
+  environment: "production"
+  systems:
+    - id: "agl-lb-01"
+      name: "Edge Load Balancer"
+      type: "load_balancer"
+      hostname: "lb01.aetherlogistics.com"
+      ip: "192.168.10.5"
+      port: 443
+      operating_system: "F5 BIG-IP"
+      crypto_algorithm: "RSA-4096"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Sectigo Public CA"
+        subject: "lb01.aetherlogistics.com"
+        expiry: "2026-12-31"
+        algorithm: "SHA256withRSA"
+      dependencies:
+        - "agl-web-01"
+        - "agl-web-02"
+      criticality: "critical"
+      owner: "SecOps"
+      notes: "External facing load balancer for corporate website and customer portal"
+      legacy: false
+
+    - id: "agl-web-01"
+      name: "Web Portal Node 1"
+      type: "server"
+      hostname: "web01.internal.aetherlogistics.com"
+      ip: "10.0.1.11"
+      port: 8080
+      operating_system: "Ubuntu 22.04 LTS"
+      crypto_algorithm: "ECDSA-P256"
+      tls_version: "TLS 1.3"
+      certificate:
+        issuer: "Aether Private CA"
+        subject: "web01.internal.aetherlogistics.com"
+        expiry: "2027-05-01"
+        algorithm: "SHA384withECDSA"
+      dependencies:
+        - "agl-db-01"
+      criticality: "high"
+      owner: "Web Platform Team"
+      notes: "App server running web client dashboard"
+      legacy: false
+
+    - id: "agl-web-02"
+      name: "Web Portal Node 2"
+      type: "server"
+      hostname: "web02.internal.aetherlogistics.com"
+      ip: "10.0.1.12"
+      port: 8080
+      operating_system: "Ubuntu 22.04 LTS"
+      crypto_algorithm: "ECDSA-P256"
+      tls_version: "TLS 1.3"
+      certificate:
+        issuer: "Aether Private CA"
+        subject: "web02.internal.aetherlogistics.com"
+        expiry: "2027-05-01"
+        algorithm: "SHA384withECDSA"
+      dependencies:
+        - "agl-db-01"
+      criticality: "high"
+      owner: "Web Platform Team"
+      notes: "App server running web client dashboard"
+      legacy: false
+
+    - id: "agl-db-01"
+      name: "Production Database Cluster"
+      type: "database"
+      hostname: "db-prod.internal.aetherlogistics.com"
+      ip: "10.0.2.20"
+      port: 3306
+      operating_system: "RHEL 8.8"
+      crypto_algorithm: "AES-256-CBC"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Aether Private CA"
+        subject: "db-prod.internal.aetherlogistics.com"
+        expiry: "2026-06-15"
+        algorithm: "SHA256withRSA"
+      dependencies: []
+      criticality: "critical"
+      owner: "DB Admin Team"
+      notes: "MySQL Cluster storing user account info and logistics tracking logs"
+      legacy: true
+
+    - id: "agl-pki-01"
+      name: "Enterprise PKI Root"
+      type: "pki"
+      hostname: "pki-root.internal.aetherlogistics.com"
+      ip: "10.0.5.10"
+      port: 443
+      operating_system: "Windows Server 2022"
+      crypto_algorithm: "RSA-4096"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Aether Root CA"
+        subject: "Aether Root CA"
+        expiry: "2035-01-01"
+        algorithm: "SHA512withRSA"
+      dependencies: []
+      criticality: "critical"
+      owner: "SecOps"
+      notes: "Offline/restricted Root CA. Crucial migration blocker target"
+      legacy: true
+
+    - id: "agl-dns-01"
+      name: "Core DNS Server"
+      type: "dns"
+      hostname: "dns01.internal.aetherlogistics.com"
+      ip: "10.0.0.2"
+      port: 53
+      operating_system: "FreeBSD 13"
+      crypto_algorithm: "none"
+      tls_version: "none"
+      dependencies: []
+      criticality: "high"
+      owner: "Network Services"
+      notes: "Primary internal DNS resolver"
+      legacy: false

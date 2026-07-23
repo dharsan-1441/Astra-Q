@@ -1,0 +1,104 @@
+enterprise:
+  name: "AstraQ Enterprise Network"
+  domain: "enterprise.com"
+  environment: "Production"
+  systems:
+    - id: "gateway-01"
+      name: "Public Edge Load Balancer"
+      type: "load_balancer"
+      hostname: "edge.enterprise.com"
+      ip: "198.51.100.1"
+      criticality: "critical"
+      operating_system: "Linux Ubuntu 22.04"
+      crypto_algorithm: "ECDSA-P256"
+      tls_version: "TLS 1.3"
+      dependencies:
+        - "auth-pki-01"
+        - "web-server-01"
+      certificate:
+        issuer: "Internal CA"
+        subject: "edge.enterprise.com"
+        algorithm: "ECDSA-P256"
+      notes: "Edge proxy configured with dual-signature hybrid root certificates."
+      legacy: false
+
+    - id: "auth-pki-01"
+      name: "Corporate Active Directory PKI"
+      type: "pki"
+      hostname: "pki.internal.local"
+      ip: "10.0.1.10"
+      criticality: "critical"
+      operating_system: "Windows Server 2019"
+      crypto_algorithm: "RSA"
+      tls_version: "TLS 1.2"
+      dependencies:
+        - "hsm-vault-01"
+      notes: "Internal active directory CA."
+      legacy: false
+
+    - id: "hsm-vault-01"
+      name: "Legacy HSM Root Trust Anchor"
+      type: "hsm"
+      hostname: "hsm-root.internal.local"
+      ip: "10.0.1.5"
+      criticality: "critical"
+      operating_system: "Embedded Linux"
+      crypto_algorithm: "RSA"
+      tls_version: "TLS 1.0"
+      dependencies: []
+      notes: "Legacy HSM lacks firmware capability for ML-KEM/ML-DSA."
+      legacy: true
+
+    - id: "web-server-01"
+      name: "Portal Web Application Server"
+      type: "server"
+      hostname: "portal.internal.local"
+      ip: "10.0.2.20"
+      criticality: "high"
+      operating_system: "Linux RedHat 9.0"
+      crypto_algorithm: "ECDSA-P384"
+      tls_version: "TLS 1.3"
+      dependencies:
+        - "db-vault-01"
+      notes: "Internal portal app."
+      legacy: false
+
+    - id: "db-vault-01"
+      name: "Core PostgreSQL Database Clustered Instance"
+      type: "database"
+      hostname: "db-01.internal.local"
+      ip: "10.0.3.50"
+      criticality: "critical"
+      operating_system: "Linux Debian 12"
+      crypto_algorithm: "Ed25519"
+      tls_version: "TLS 1.3"
+      dependencies: []
+      notes: "Primary datastore."
+      legacy: false
+
+    - id: "client-finance-01"
+      name: "Accounting Terminal 01"
+      type: "client"
+      hostname: "fin-term.internal.local"
+      ip: "10.0.5.101"
+      criticality: "medium"
+      operating_system: "Windows 10"
+      crypto_algorithm: "ECDSA-P256"
+      tls_version: "TLS 1.2"
+      dependencies:
+        - "web-server-01"
+      notes: "Client browser suite."
+      legacy: false
+
+    - id: "backup-vault-01"
+      name: "Cold Storage Backup Target"
+      type: "server"
+      hostname: "backup.internal.local"
+      ip: "10.0.9.99"
+      criticality: "low"
+      operating_system: "FreeBSD 13.1"
+      crypto_algorithm: "Ed25519"
+      tls_version: "TLS 1.3"
+      dependencies: []
+      notes: "Isolated cold-storage machine."
+      legacy: false

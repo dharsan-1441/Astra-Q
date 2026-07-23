@@ -1,0 +1,180 @@
+enterprise:
+  name: "Apex Healthcare Systems"
+  domain: "apexhealth.org"
+  environment: "production"
+  systems:
+    - id: "apex-edge-01"
+      name: "Global Traffic Manager"
+      type: "load_balancer"
+      hostname: "gtm.apexhealth.org"
+      ip: "203.0.113.10"
+      port: 443
+      operating_system: "Citrix ADC"
+      crypto_algorithm: "RSA-2048"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "DigiCert High Assurance EV CA"
+        subject: "gtm.apexhealth.org"
+        expiry: "2026-09-30"
+        algorithm: "SHA256withRSA"
+      dependencies:
+        - "apex-vpn-01"
+        - "apex-portal-01"
+      criticality: "critical"
+      owner: "Infrastructure Services"
+      notes: "External traffic routing and DDoS protection shield"
+      legacy: false
+
+    - id: "apex-vpn-01"
+      name: "Enterprise SSL VPN"
+      type: "vpn"
+      hostname: "vpn.apexhealth.org"
+      ip: "203.0.113.20"
+      port: 443
+      operating_system: "Pulse Secure OS"
+      crypto_algorithm: "RSA-2048"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "DigiCert TLS RSA SHA256 CA"
+        subject: "vpn.apexhealth.org"
+        expiry: "2026-05-15"
+        algorithm: "SHA256withRSA"
+      dependencies:
+        - "apex-ldap-01"
+      criticality: "critical"
+      owner: "SecOps"
+      notes: "Primary remote access gateway for doctors and staff"
+      legacy: true
+
+    - id: "apex-portal-01"
+      name: "Patient Portal Frontend"
+      type: "server"
+      hostname: "mychart.apexhealth.org"
+      ip: "10.150.1.50"
+      port: 443
+      operating_system: "IIS 10.0"
+      crypto_algorithm: "ECDSA-P384"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Entrust Certification Authority"
+        subject: "mychart.apexhealth.org"
+        expiry: "2026-07-22"
+        algorithm: "SHA384withECDSA"
+      dependencies:
+        - "apex-emr-api"
+      criticality: "critical"
+      owner: "Patient Digital Experience"
+      notes: "Patient-facing portal for medical records and appointments"
+      legacy: false
+
+    - id: "apex-ldap-01"
+      name: "Identity and Directory Service"
+      type: "server"
+      hostname: "ldap.apexhealth.org"
+      ip: "10.150.2.10"
+      port: 636
+      operating_system: "Active Directory on Win2019"
+      crypto_algorithm: "RSA-2048"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Apex Enterprise Intermediate CA"
+        subject: "ldap.apexhealth.org"
+        expiry: "2027-10-12"
+        algorithm: "SHA256withRSA"
+      dependencies: []
+      criticality: "critical"
+      owner: "Identity Access Management"
+      notes: "Active Directory Domain Controller (LDAPS)"
+      legacy: true
+
+    - id: "apex-emr-api"
+      name: "EMR Core API Services"
+      type: "server"
+      hostname: "emr-api.internal.apexhealth.org"
+      ip: "10.150.2.20"
+      port: 8443
+      operating_system: "RHEL 9.1"
+      crypto_algorithm: "ECDSA-P256"
+      tls_version: "TLS 1.3"
+      certificate:
+        issuer: "Apex Enterprise Intermediate CA"
+        subject: "emr-api.internal.apexhealth.org"
+        expiry: "2027-02-14"
+        algorithm: "SHA256withECDSA"
+      dependencies:
+        - "apex-db-emr"
+        - "apex-hsm-01"
+      criticality: "critical"
+      owner: "Clinical Systems"
+      notes: "Core API orchestrator for Electronic Medical Records access"
+      legacy: false
+
+    - id: "apex-db-emr"
+      name: "EMR Database Cluster"
+      type: "database"
+      hostname: "emr-db.internal.apexhealth.org"
+      ip: "10.150.3.10"
+      port: 1521
+      operating_system: "Oracle Linux 8"
+      crypto_algorithm: "TDE-AES256"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Apex Enterprise Intermediate CA"
+        subject: "emr-db.internal.apexhealth.org"
+        expiry: "2026-08-01"
+        algorithm: "SHA256withRSA"
+      dependencies: []
+      criticality: "critical"
+      owner: "Clinical Database Admins"
+      notes: "Oracle Database Cluster with transparent data encryption enabled"
+      legacy: true
+
+    - id: "apex-hsm-01"
+      name: "Hardware Security Module"
+      type: "hsm"
+      hostname: "hsm01.internal.apexhealth.org"
+      ip: "10.150.5.5"
+      port: 1792
+      operating_system: "Thales Luna OS"
+      crypto_algorithm: "RSA-4096"
+      tls_version: "Proprietary/TLS 1.2"
+      dependencies: []
+      criticality: "critical"
+      owner: "Crypto Management"
+      notes: "Stores root keys for database encryption and patient signing keys"
+      legacy: true
+
+    - id: "apex-proxy-01"
+      name: "Outbound Web Proxy"
+      type: "proxy"
+      hostname: "proxy.apexhealth.org"
+      ip: "10.150.1.10"
+      port: 8080
+      operating_system: "Ubuntu 22.04 LTS"
+      crypto_algorithm: "RSA-2048"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Apex Enterprise Root CA"
+        subject: "proxy.apexhealth.org"
+        expiry: "2028-04-18"
+        algorithm: "SHA256withRSA"
+      dependencies: []
+      criticality: "high"
+      owner: "Network Security"
+      notes: "Squid Proxy doing TLS decryption and filtering for outgoing hospital traffic"
+      legacy: true
+
+    - id: "apex-dns-root"
+      name: "Internal DNS Root"
+      type: "dns"
+      hostname: "dns.apexhealth.org"
+      ip: "10.150.0.1"
+      port: 53
+      operating_system: "FreeBSD 13.1"
+      crypto_algorithm: "none"
+      tls_version: "none"
+      dependencies: []
+      criticality: "high"
+      owner: "Infrastructure Services"
+      notes: "Internal DNS Resolver"
+      legacy: false

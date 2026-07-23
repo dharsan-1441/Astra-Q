@@ -1,0 +1,145 @@
+enterprise:
+  name: "Nexus Financial Services"
+  domain: "nexusfs.local"
+  environment: "production"
+  systems:
+    - id: "nfs-gw-001"
+      name: "API Gateway"
+      type: "gateway"
+      hostname: "api-gw.nexusfs.local"
+      ip: "10.10.1.10"
+      port: 443
+      operating_system: "Ubuntu 22.04 LTS"
+      crypto_algorithm: "RSA-2048"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Nexus Internal CA"
+        subject: "api-gw.nexusfs.local"
+        expiry: "2026-03-15"
+        algorithm: "SHA256withRSA"
+      dependencies:
+        - "nfs-app-001"
+        - "nfs-app-002"
+      criticality: "critical"
+      owner: "Platform Engineering"
+      notes: "Primary ingress point for all client traffic"
+      legacy: false
+
+    - id: "nfs-app-001"
+      name: "Trading Engine"
+      type: "server"
+      hostname: "trade-engine-01.nexusfs.local"
+      ip: "10.10.2.20"
+      port: 8443
+      operating_system: "RHEL 9.2"
+      crypto_algorithm: "ECDSA-P256"
+      tls_version: "TLS 1.3"
+      certificate:
+        issuer: "Nexus Internal CA"
+        subject: "trade-engine-01.nexusfs.local"
+        expiry: "2026-08-20"
+        algorithm: "SHA384withECDSA"
+      dependencies:
+        - "nfs-db-001"
+      criticality: "critical"
+      owner: "Trading Systems"
+      notes: "Real-time order matching engine"
+      legacy: false
+
+    - id: "nfs-app-002"
+      name: "Client Portal"
+      type: "server"
+      hostname: "portal.nexusfs.local"
+      ip: "10.10.2.30"
+      port: 443
+      operating_system: "Ubuntu 22.04 LTS"
+      crypto_algorithm: "RSA-2048"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "DigiCert Global G2"
+        subject: "portal.nexusfs.local"
+        expiry: "2026-11-01"
+        algorithm: "SHA256withRSA"
+      dependencies:
+        - "nfs-db-001"
+        - "nfs-cache-001"
+      criticality: "high"
+      owner: "Product Engineering"
+      notes: "Customer-facing web application"
+      legacy: false
+
+    - id: "nfs-db-001"
+      name: "Core Database"
+      type: "database"
+      hostname: "pgdb-primary.nexusfs.local"
+      ip: "10.10.3.10"
+      port: 5432
+      operating_system: "RHEL 9.2"
+      crypto_algorithm: "AES-256-GCM"
+      tls_version: "TLS 1.3"
+      certificate:
+        issuer: "Nexus Internal CA"
+        subject: "pgdb-primary.nexusfs.local"
+        expiry: "2027-01-15"
+        algorithm: "SHA256withRSA"
+      dependencies: []
+      criticality: "critical"
+      owner: "Database Engineering"
+      notes: "PostgreSQL 16 primary instance"
+      legacy: false
+
+    - id: "nfs-cache-001"
+      name: "Session Cache"
+      type: "cache"
+      hostname: "redis-01.nexusfs.local"
+      ip: "10.10.3.50"
+      port: 6379
+      operating_system: "Ubuntu 22.04 LTS"
+      crypto_algorithm: "none"
+      tls_version: "none"
+      dependencies:
+        - "nfs-app-002"
+      criticality: "medium"
+      owner: "Platform Engineering"
+      notes: "Redis 7 in-memory cache — no TLS configured"
+      legacy: false
+
+    - id: "nfs-vpn-001"
+      name: "Corporate VPN Gateway"
+      type: "vpn"
+      hostname: "vpn.nexusfs.local"
+      ip: "10.10.0.5"
+      port: 1194
+      operating_system: "pfSense 2.7"
+      crypto_algorithm: "RSA-2048"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Nexus Root CA"
+        subject: "vpn.nexusfs.local"
+        expiry: "2027-06-01"
+        algorithm: "SHA256withRSA"
+      dependencies: []
+      criticality: "high"
+      owner: "Network Operations"
+      notes: "OpenVPN-based remote access gateway"
+      legacy: false
+
+    - id: "nfs-mail-001"
+      name: "Mail Server"
+      type: "mail"
+      hostname: "mail.nexusfs.local"
+      ip: "10.10.4.10"
+      port: 587
+      operating_system: "Ubuntu 20.04 LTS"
+      crypto_algorithm: "RSA-2048"
+      tls_version: "TLS 1.2"
+      certificate:
+        issuer: "Let's Encrypt"
+        subject: "mail.nexusfs.local"
+        expiry: "2026-09-15"
+        algorithm: "SHA256withRSA"
+      dependencies: []
+      criticality: "medium"
+      owner: "IT Operations"
+      notes: "Postfix + Dovecot deployment"
+      legacy: true
